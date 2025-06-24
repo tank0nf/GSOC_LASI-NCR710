@@ -1,5 +1,0 @@
-Getting LASI working on HPUX Report
--------------------------------------
-
-After testing for a while writing this report, reflecting and then rewriting this report for getting LASI to work on HPUX 10.20.
-Here is my hypothesis, 
