@@ -68,7 +68,7 @@ Additional Findings
 -------------------
 1.Unlike Debian, HP-UX issues probing commands but these commands are being used by LASI not NIC and the values should  commands (e.g, channel attention or CU start). It uses a much more probing-based approach.
 
-2. Command values sent:
+2.Command values sent:
 lasi_chip_write addr 0x4 val=0x00004000
 lasi_chip_write addr 0x4 val=0x00204000
 lasi_chip_write addr 0x4 val=0x00204020
