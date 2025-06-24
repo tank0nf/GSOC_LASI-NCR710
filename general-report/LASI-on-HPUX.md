@@ -34,7 +34,7 @@ i82596_receive_analysis >>> multicast packet rejected
 lasi_chip_write addr 0x4 val=0x00204020
 lasi_chip_read addr 0x0 val=0x00000020
 (repeated)
-
+```
 
 Reset and Initialization Behavior
 ---------------------------------
