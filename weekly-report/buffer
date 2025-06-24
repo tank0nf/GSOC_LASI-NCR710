@@ -1,0 +1,68 @@
+Got to work on implementing the LASI Network Cards Missing sections:
+These consist of:
+
+CmdDump
+CmdDiagnose
+CU_Suspend
+CU, RU state tarnsition handling
+TDR
+Frame Processing Options errors in logic
+Monitor Mode: Linux driver side
+Self Test
+Interrupt bits
+Full Duplex Operation
+
+The docs describes 3 address mode:
+- 82586 mode
+- 32-bit Segmented mode
+- Linear mode
+This would need significant restructureing of the current device model implementation (Helge mentioned good to have, but not necessary)
+
+
+The Flexible and Simplified mode for both transmit and receive operations
+Chaining buffer implementation for TX and RX
+Error Statisics implementation
+
+
+## Interrupt Handling
+
+## Configuration and Options
+16. **Promiscuous Mode Handling**:
+    
+    - Limited implementation of promiscuous mode options
+17. **Full Duplex Operation**:
+    
+    - No explicit support for full duplex configuration
+
+## Bus Interface Features
+
+18. **Bus Throttle Timers**:
+    
+    - Bus throttle timer functionality is declared but not fully implemented
+    - These control the 82596's bus usage to improve system performance
+19. **Big Endian vs. Little Endian Handling**:
+    
+    - QEMU implementation has endianness handling code, but it's not comprehensive
+    - Documentation describes specific handling requirements for big endian systems
+
+## Core Architecture Features
+
+20. **FIFO Buffer Management**:
+    
+    - No implementation of the 128-byte RX FIFO and 64-byte TX FIFO
+    - These are mentioned in documentation as important for performance
+21. **Action Commands Synchronization**:
+    
+    - Asynchronous command handling not fully implemented
+    - Linux driver shows careful handling of command synchronization
+
+## Other Issues
+
+23. **Error Recovery Mechanisms**:
+    
+    - Limited implementation of recovery from error conditions
+    - Linux driver shows more robust handling of errors and recovery
+24. **Documentation References**:
+    
+    - Several "FIXME" and "TODO" comments throughout the code
+    - These indicate known issues that need to be addressed
