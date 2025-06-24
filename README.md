@@ -1,21 +1,37 @@
-# GSOC_LASI-NCR710
-This Repository is for the GSOC project for implementing LASI's 82596CA Network Interface card and NCR710 SCSI Controller for GSOC 2025.
-The documentation is divided into sections containing:
+# GSoC 2025: LASI i82596CA NIC & NCR710 SCSI Controller
 
-1.Weekly report of the progress.(Weekly Report)
+This repository contains the GSoC 2025 project work for implementing support for the LASI-attached Intel 82596CA Network Interface Card and the NCR710 SCSI Controller in QEMU.
 
-2.Milestones including those we are yet to reach (Milestones, Midterm and Final Report)
+---
 
-3.General Report (These are the documentation that is prepared for communication in between the progress)
+## Documentation Structure
 
-4.The GSOC Proposal.
+The documentation is organized into the following sections:
 
+1. **Weekly Reports**  
+   Weekly logs and updates tracking the progress of the project.
 
-Legend:
-For the todo lists present throughout the repo:
-(-): Yet to be done.
-(x): Done
+2. **Milestones**  
+   Includes both completed and upcoming goals, along with the **Midterm** and **Final Evaluation Reports**.
 
-Please refer to the sections as necessary.
-Thank you,
-Soumyajyotii Ssarkar.
+3. **General Reports**  
+   Technical notes, debugging logs, architecture explanations, and internal communication throughout the development process.
+
+4. **GSoC Proposal**  
+   The original accepted proposal submitted for GSoC 2025.
+
+---
+
+## Legend for To-Do Lists
+
+To-do items in the repository use the following notation:
+
+- `(-)` : Yet to be completed  
+- `(x)` : Completed
+
+---
+
+Please refer to the relevant sections as needed.
+
+Thank you,  
+Soumyajyoti Sarkar
