@@ -1,0 +1,803 @@
+```c
+
+# cd /tmp
+# mkdir lan_analysis
+# cd lan_analysis
+# ar x /usr/conf/lib/liblan.a
+# nm -o *.o | grep -i lasi 
+lan2_config_lasi_for_hawk|010000011130|extern|data   |$SHORTDATA$
+# nm -o *.o | grep -i 82596
+# cat /usr/conf/master.d/lan
+*
+* @(#) $Revision: 1.3.98.1 $
+*
+* The following devices are those that can be specified in the system
+* description file.  The name specified must agree with the name shown,
+* or with an alias.
+*
+* name          handle          type    mask    block   char
+*
+$DEVICE
+** Reserved for Third Party and User Drivers.
+*               ---             -       -       -1      38
+*               ---             -       -       -1      39
+*               ---             -       -       -1      40
+*               ---             -       -       -1      41
+*               ---             -       -       -1      42
+*               ---             -       -       -1      43
+*               ---             -       -       8       -1
+*               ---             -       -       15      -1
+*               ---             -       -       16      -1
+*               ---             -       -       17      -1
+*               ---             -       -       18      -1
+
+$$$
+
+$CDIO
+*
+* The following entries form the cdio table.
+* field 1: cdio name
+* field 2: required, optional
+*
+$$$
+
+$DRIVER_INSTALL
+***************************************************************************
+* Driver install table
+*
+* This table contains the name of drivers which have converged I/O header
+* structures and install entry points.  Drivers in this table should not
+* be defined in the driver table above.
+***************************************************************************
+* Driver     Block major     Char major
+lan0             -1              50
+lan1             -1              51
+lan2             -1              52
+lan3             -1             185
+dlpi             -1             119
+$$$
+
+$ALIAS
+*
+* The following entries form the alias table.
+* field 1: product #    field 2: driver name
+*
+$$$
+$TUNABLE
+*
+* The following entries form the tunable parameter table.  Any of these
+* values can be overwritten in the dfile.  However, before changing any
+* value, know the ramifications of your change.
+*
+$$$
+$DRIVER_DEPENDENCY
+*
+* Driver dependency table, if one driver is present, what
+* other drivers should also be in the dfile.
+*
+* Driver name   <dependency>  <dependency> .....
+*
+lan0 dlpi
+lan1 dlpi
+lan2 dlpi
+lan3 dlpi
+dlpi hpstreams clone
+$$$
+$DRIVER_LIBRARY
+*
+* The driver/library table.  This table defines which libraries a given
+* driver depends on.  If the driver is included in the dfile, then the
+* libraries that driver depends on will be included on the ld(1) command
+* line.  Only optional libraries *need* to be specified in this table,
+* (but required ones can be included, as well).
+*
+* Driver handle    <libraries>
+*
+* subsystems first 
+lan0            liblan.a libstream.a
+lan1            liblan.a libstream.a
+lan2            liblan.a libstream.a
+lan3            liblan.a libstream.a
+dlpi            liblan.a libstream.a
+$$$
+$LIBRARY
+*
+* The library table.  Each element in the library table describes
+* one unique library.  The flag member is a boolean value, it is
+* initialized to 1 if the library should *always* be included on
+* the ld(1) command line, or 0 if the library is optional (i.e. it
+* is only included when one or more drivers require it).  The order
+* of the library table determines the order of the libraries on the
+* ld(1) command line, (i.e. defines an implicit load order).  New
+* libraries must be added to this table.
+* Note: libhp-ux.a must be the last entry, do not place anything after it.
+*
+* Library   <required>
+*
+liblan.a        0
+$$$
+$SUBSYSTEMS_DEFINE
+* Subsystem #define table.  For any subsystem that is found in the dfile
+* and appears below, a #define is generated in the conf.c file.  This
+* is used to include any space defined in space.h.
+$$$
+
+$DRIVER_PRODUCT
+* 
+* Driver product table.  The following generates a table of supported products
+* for a given interface card.  The input is a driver handle followed by a list
+* of product/vendor id's. What is produced is a table of these product/vendor
+* id's to be used by the interface driver for further qualification during
+* booting and the setting of root device location.
+*
+$$$
+
+# cat /usr/conf/sio/lan_dlpikrn.h
+/* $Source: /usr/local/kcs/sys.DAVIS_800/sio/RCS/lan_dlpikrn.h,v $
+ * $Revision: 1.6.98.2 $       $Author: kcs $
+ * $State: Exp $        $Locker: indnetwk $
+ * $Date: 95/08/11 15:52:11 $
+ */
+
+/*
+ * (C) COPYRIGHT HEWLETT-PACKARD COMPANY 1993. ALL RIGHTS
+ * RESERVED. NO PART OF THIS PROGRAM MAY BE PHOTOCOPIED,
+ * REPRODUCED, OR TRANSLATED TO ANOTHER PROGRAM LANGUAGE WITHOUT
+ * THE PRIOR WRITTEN CONSENT OF HEWLETT PACKARD COMPANY
+ */
+
+
+#ifndef _SIO_DLPIKRN_INCLUDED
+#define _SIO_DLPIKRN_INCLUDED
+
+/*****************************************************************************
+        DLPI to Network Device Driver Interface definitions.
+*****************************************************************************/
+
+#define MAX_HDW_PATH_LEN        100
+#define MAX_MAC_ADDR_LEN        20
+
+/* The following device types are consistent with the values defined
+ * in dlpi.h.  ATM and FC are not currently defined in the 2.0 version
+ * of DLPI.
+ */
+#define DEV_8023        0x0     /* IEEE 8023.                           */
+#define DEV_8024        0x1     /* Token Bus.                           */
+#define DEV_8025        0x2     /* Token Ring.                          */
+#define DEV_8026        0x3     /* 802.6                        */
+#define DEV_ETHER       0x4     /* Ethernel interface.                  */
+#define DEV_HDLC        0x5     /* HDLC.                        */
+#define DEV_CHAR        0x6     /* BYSYNC                       */
+#define DEV_CTCA        0x7     /* IBM Channel-to-Channel Adapter       */
+#define DEV_FDDI        0x8     /* FDDI                         */
+#define DEV_ATM         0x9     /* ATM                          */
+#define DEV_FC          0xa     /* FC                           */
+#define DEV_HIPPI       0xb     /* HiPPI                        */
+#define DEV_IPATM       0xc     /* IP ATM                               */
+#define DEV_100VG       0xd     /* 100basedVG 802.3                     */
+#define DEV_100VGTPR    0xe     /* 100basedVG 802.5                     */
+
+/* LLC Encapsulation Types */
+#define IEEE            0x01    /* IEEE 8022                    */
+#define HP_EXT_IEEE     0x02    /* HP Extended IEEE 8022        */
+#define SNAP            0x04    /* IEEE SNAP                    */
+#define ETHERTYPE       0x08    /* Ethernet                     */
+#define NOVELL          0x10    /* Ethernet                     */
+
+
+/*
+ * Generic hardware information structure.
+ */
+/*
+ * HP DLPI support
+ */
+typedef struct {
+        caddr_t drv_data;       /* Driver dependent data structure
+                                 * to be passed in write and ioctl
+                                 * requests.
+                                 */
+        int     (*dlpi_output)();
+        int     (*dlpi_build_hdr)();    /* This function requires the
+                                         * same parameters as the arpcom                                                 * ac_build_hdr:
+                                         * drv_data, pkt_type, hdr_info,
+                                         * mbufpp.
+                                         */
+        int     (*dlpi_ioctl)();        /* This function requires the
+                                         * same parameters as the ifnet
+                                         * if_ioctl:  drv_data,
+                                         * command, data_ptr.
+                                         */
+        caddr_t         mib_ptr;
+        int             mib_len;
+        u_int   reserved1;      /* For Internal use only. */
+        u_int   reserved2;      /* For Internal use only. */
+        u_int   reserved3;      /* For Internal use only. */
+
+
+} hw_dlpi_t;
+
+/* Special control information.  This information is included in the
+ * quad area of the message block.
+ */
+
+
+typedef struct  hw_ift {
+        hw_dlpi_t       hp_dlpi;
+        u_int           mac_type;       /* FC, ATM, FDDI, TPR, ETHER */
+        u_int           llc_flags;      /* LLC encapsulation methods.
+                                         * IEEE, HP_EXT_IEEE, SNAP,
+                                         * ETHERTYPE, and NOVELL.
+                                         */
+        u_int           mjr_num;
+        u_int           nm_id;          /* Network management ID.
+                                         * This is the PPA number for
+                                         * the device.
+                                         */
+        u_int           instance_num;   /* 10.0 Instance number for
+                                         * device.
+                                         */
+        u_int           mtu;            /* MTU size for network device */
+        char            *name;  /* Driver Device Name */
+        u_char          hdw_path[MAX_HDW_PATH_LEN];
+        u_int           hdw_state;
+        u_int           mac_addr_len;
+        u_char          mac_addr[MAX_MAC_ADDR_LEN];
+        u_int           features;       /* This is placeholder for future
+                                         * features which DLPI may support.
+                                         */
+        u_int           reserved1;      /* For Internal use only. */
+        u_int           reserved2;      /* For Internal use only. */
+        lock_t          *hwift_lock;    /* MP protection.         */
+        struct hw_ift   *next;
+} hw_ift_t;
+
+
+#define LAN_HWIFT_LOCK_ORDER    LAN_LANC_LOCK_ORDER  /* order of hwift_lock */
+
+#define HWIFT_LOCK(lock) spinlock(lock)
+
+#define HWIFT_UNLOCK(lock) spinunlock(lock)
+
+#define HWIFT_OWNS_LOCK(lock) owns_spinlock(lock)
+
+/*
+ * Defines for the features field in the hw_ift.
+ */
+#define DRV_MP                  0x1
+#define DRV_HP_SUPPORTED        0x2
+#define DRV_IP_MULTICAST        0x4
+
+/*IP MULTICAST Changes */
+/* The following really belongs in lanc.h.  We put it here for now
+ * to avoid integration hassles.
+ */
+#define IEEE8023_GROUP_ADDR       0x01  /* LSB of 1st octet of MAC address */
+#define IEEE8025_GROUP_NODE_ADDR  0x80  /* MSB of 1st octet of link address */
+
+
+/* defines for fis s[] fields; should be in netio.h. */
+
+/* value of pointer to data in fis s[],
+ * for {ENABLE,DISABLE}_PROMISCUOUS.
+ * usage:
+ *    struct fis arg;
+ *    PROMISC_DATA_PTR(&arg)    = ...;  ((note "&"))
+ *
+ *    struct fis *arg_ptr;
+ *    PROMISC_DATA_PTR(arg_ptr) = ...;  ((note no "&"))
+ */
+#define PROMISC_DATA_PTR(v)  ( *AT_PROMISC_DATA_PTR(v) )
+
+/* address of pointer to queue in fis s[].
+ * suitable for passing by-reference to functions, etc.
+ */
+#define AT_PROMISC_DATA_PTR(v)     \
+   /* struct fis *v; */            \
+   ( (caddr_t*)&(v)->value.s[0] )
+
+/* value of pointer to void function in fis s[],
+ * for {ENABLE,DISABLE}_PROMISCUOUS.
+ * usage:
+ *    struct fis arg;
+ *    PROMISC_FUNC_PTR(&arg) = ...;     ((note "&"))
+ *    (*PROMISC_FUNC_PTR(&arg))(...);   ((function call))
+ *
+ *    struct fis *arg_ptr;
+ *    PROMISC_FUNC_PTR(arg_ptr) = ...;  ((note no "&"))
+ */
+#define PROMISC_FUNC_PTR(v)  ( *AT_PROMISC_FUNC_PTR(v) )
+
+/* address of pointer to void function in fis s[].
+ * suitable for passing by-reference to functions, etc.
+ */
+#define AT_PROMISC_FUNC_PTR(v)  \
+   /* struct fis *v; */         \
+   ( (void(**)())&(v)->value.s[sizeof(PROMISC_DATA_PTR(v))] )
+
+
+#define LAN_BROADCAST_ADDRESS(address)          \
+  ( ((u_char)(address)[0] == 0xFF) &&           \
+    ((u_char)(address)[1] == 0xFF) &&           \
+    ((u_char)(address)[2] == 0xFF) &&           \
+    ((u_char)(address)[3] == 0xFF) &&           \
+    ((u_char)(address)[4] == 0xFF) &&           \
+    ((u_char)(address)[5] == 0xFF) )
+
+
+#define LAN_SAME_ADDRESS(addr1,addr2)           \
+  ( ((u_char)(addr1)[5] == (u_char)(addr2)[5]) &&       \
+    ((u_char)(addr1)[4] == (u_char)(addr2)[4]) &&       \
+    ((u_char)(addr1)[3] == (u_char)(addr2)[3]) &&       \
+    ((u_char)(addr1)[2] == (u_char)(addr2)[2]) &&       \
+    ((u_char)(addr1)[1] == (u_char)(addr2)[1]) &&       \
+    ((u_char)(addr1)[0] == (u_char)(addr2)[0]) )
+
+/*
+ * linked list of promiscuous users.
+ */
+typedef struct promisc {
+    int         (*func_ptr)();  /* Function to call for promiscuous packets */
+    int            data_ptr;
+    struct promisc *next;
+} promisc_t;
+
+/*
+ * The following structure is used for promiscuous mode only.
+ */
+#define MAX_LAN_INTERFACES      50
+typedef struct {
+    int         (*func_ptr)();  /* Function to call for promiscuous packets */
+    caddr_t     data_ptr;
+
+    u_int       filter_cnt;     /* ref cnt for requests to filter based on SAP*/
+    u_int       no_filter_cnt;  /* ref cnt for requests to receive all pkts */
+    u_int       phys_ref_cnt;  /* ref cnt to enable phys promisc */
+    u_int       multi_ref_cnt; /* ref cnt to enable multi promisc */
+    u_int       sap_ref_cnt;   /* ref cnt to enable multi promisc */
+} p_entry_t;
+
+/*
+ * The following structures and macros are used to support multicast
+ * addressing.
+ */
+typedef struct mcast_list {
+    u_char addr[6];
+    int    ref_cnt;
+    struct mcast_list *next;
+} mcast_list_t;
+
+typedef struct {
+    mcast_list_t *hw_mcast;
+    int          mc_threshold; /* Threshold for mcast addresses */
+} hw_mcast_entry_t;
+
+
+/* The following macro's should only be called from lanc_media_control. */
+
+/* Delete or update ref_cnt for an entry in the mcast address list for
+ * a specific LAN interface.
+ */
+#define DEL_EXT_MCAST(lanunit, address)                         \
+{                                                               \
+   hw_mcast_entry_t *mcast_entry = &ext_mcast_list[lanunit];            \
+   mcast_list_t          *tmp_mcast = mcast_entry->hw_mcast;            \
+   mcast_list_t          *prev_mcast = tmp_mcast;                       \
+   mcast_list_t          *del_mcast;                            \
+   struct fis            allmulti;                              \
+   int                   found = 0;                             \
+                                                                \
+   error = EINVAL;                                              \
+   for (;tmp_mcast;prev_mcast = tmp_mcast,tmp_mcast = tmp_mcast->next) {\
+        if (!bcmp((caddr_t) address, (caddr_t) tmp_mcast->addr,         \
+            LAN_PHYSADDR_SIZE )) {                              \
+           /* Found it */                                       \
+           del_mcast = tmp_mcast;                               \
+           found = 1;                                           \
+           break;                                               \
+        }                                                       \
+   }                                                            \
+   if (found) {                                                 \
+      error = 0;                                                \
+      del_mcast->ref_cnt--;                                     \
+      if (del_mcast->ref_cnt <= 0) {                            \
+         /* Unlink this entry from the list and free it */              \
+         if (mcast_entry->hw_mcast != del_mcast)                        \
+            prev_mcast->next = del_mcast->next;                         \
+         else                                                   \
+            mcast_entry->hw_mcast = del_mcast->next;                    \
+                                                                \
+         FREE(del_mcast, M_DYNAMIC);                            \
+         lanc_ift_ptr->num_multicast_addr--;                            \
+                                                                \
+         /* Determine if we need to turn off implicit allmulti mode. */ \
+         if (mcast_entry->mc_threshold) {                       \
+            if((lanc_ift_ptr->num_multicast_addr) &&                    \
+              (lanc_ift_ptr->num_multicast_addr < mcast_entry->mc_threshold)){\
+              /* Reset multicast threshold to zero */                   \
+              mcast_entry->mc_threshold = 0;                            \
+                                                                \
+               /* Turn off implicit allmulti mode */                    \
+              allmulti.reqtype = DISABLE_PROMISCUOUS;                   \
+              allmulti.vtype = PROMISC_MULTI;                           \
+              /* Clear function pointer so lanc doesn't think */        \
+              /* this is an "unfiltered" promiscuous request. */        \
+              PROMISC_FUNC_PTR(&allmulti) = NULL;                       \
+              PROMISC_DATA_PTR(&allmulti) = NULL;                       \
+                                                                \
+              LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                      \
+              /* Don't worry about error's here since there's nothing */\
+              /* we can do if one occurs. */                            \
+              lanc_media_control(lanc_ift_ptr, &allmulti,LAN_REQ_NOT_BLOCK);\
+                                                                \
+              /* We must know reset the multicast list since it may   */\
+              /* have been destroyed when we turned on allmulti mode. */\
+                                                                \
+              /* Don't worry about error's here since there's nothing */\
+              /* we can do if one occurs. */                            \
+              (*lanc_ift_ptr->hw_req)(lanc_ift_ptr, LAN_REQ_MC, NULL);  \
+              LAN_LOCK(lanc_ift_ptr->lanc_lock);                        \
+            }                                                   \
+         }                                                      \
+         if (lanc_ift_ptr->num_multicast_addr <= 0){                    \
+            mcast_entry->hw_mcast = NULL;                       \
+         }                                                      \
+      }                                                         \
+   }                                                            \
+   /* Address not in list */                                    \
+   LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                         \
+   return(error);                                               \
+}
+
+/* Add an entry in the extended mcast address list
+ * for a specific LAN interface.
+ */
+#define ADD_EXT_MCAST(lanunit, address)                         \
+{                                                               \
+   hw_mcast_entry_t *mcast_entry = &ext_mcast_list[lanunit];            \
+   mcast_list_t          *tmp_mcast = mcast_entry->hw_mcast;            \
+   mcast_list_t          *new_mcast;                            \
+   struct fis            allmulti;                              \
+                                                                \
+   /* Allocate new entry */                                     \
+   MALLOC(new_mcast,mcast_list_t *,sizeof(mcast_list_t),M_DYNAMIC, M_NOWAIT);\
+   if (!new_mcast) {                                            \
+        LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                            \
+        return(ENOMEM);                                                 \
+   }                                                            \
+   bcopy(address, new_mcast->addr, 6);                          \
+   new_mcast->ref_cnt = 1;                                      \
+   new_mcast->next = NULL;                                      \
+   /* Link the new entry at front of list */                            \
+   if (tmp_mcast) {                                             \
+      new_mcast->next = tmp_mcast;                              \
+      mcast_entry->hw_mcast =  new_mcast;                       \
+      lanc_ift_ptr->num_multicast_addr++;                       \
+   } else {                                                     \
+      mcast_entry->hw_mcast = new_mcast;                        \
+      /* Let's explicitly set mcast count to 1 in case we got out */    \
+      /* of sync somewhere. */                                  \
+      lanc_ift_ptr->num_multicast_addr = 1;                             \
+   }                                                            \
+                                                                \
+   /* Request the driver to enable this address */                      \
+   LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                         \
+   error= (*lanc_ift_ptr->hw_req)(lanc_ift_ptr, LAN_REQ_MC, NULL);      \
+   LAN_LOCK(lanc_ift_ptr->lanc_lock);                           \
+                                                                \
+   /* Determine if we've reached the limit of multicast addresses */    \
+   /* for this interface.                                 */    \
+   if (error == EINVAL) {                                       \
+      /* Implicit request to enable allmulti! */                        \
+      /* We will assume the driver has run out of multicast addresses */\
+      /* So, let's try and enable all multi mode */                     \
+                                                                \
+      allmulti.reqtype = ENABLE_PROMISCUOUS;                            \
+      allmulti.vtype = PROMISC_MULTI;                           \
+      /* Clear function pointer so lanc doesn't think this is an */     \
+      /* "unfiltered" promiscuous request. */                           \
+      PROMISC_FUNC_PTR(&allmulti) = NULL;                       \
+      PROMISC_DATA_PTR(&allmulti) = NULL;                       \
+                                                                \
+      LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                      \
+      error = lanc_media_control(lanc_ift_ptr, &allmulti,LAN_REQ_NOT_BLOCK);\
+      /* The following unlock does introduce a corner case problem */   \
+      /* were we could delete all our multicast addresses prior */      \
+      /* to completing the enable. */                           \
+      /* At worst this would cause our multicast count to be off */     \
+      /* temporarily and all multi mode to remain enabled. */           \
+      LAN_LOCK(lanc_ift_ptr->lanc_lock);                        \
+      if (error) {                                              \
+         /* We could not enable allmulti, so delete the entry and return */ \
+         DEL_EXT_MCAST(lanunit, address);                       \
+      }                                                         \
+      /* We successfully enabled allmulti mode.  Set the mc threshold */\
+      /* for this interface to num_multicast_addr. */                   \
+      mcast_entry->mc_threshold = lanc_ift_ptr->num_multicast_addr;     \
+   } else {                                                     \
+      if (error)        {                                       \
+         /* We got an error from the driver, so delete the entry */     \
+         DEL_EXT_MCAST(lanunit, address);                       \
+      }                                                         \
+   }                                                            \
+   LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                         \
+   return(error);                                               \
+}
+
+/* Determine if the address is in the extended address list.
+ * If so, then update the reference count.  
+ */
+#define UPDATE_EXT_MCAST(lanunit, address) {                            \
+   hw_mcast_entry_t *mcast_entry = &ext_mcast_list[lanunit];            \
+   mcast_list_t          *tmp_mcast = mcast_entry->hw_mcast;            \
+                                                                \
+   for (;tmp_mcast;tmp_mcast = tmp_mcast->next) {                       \
+        if (!bcmp((caddr_t) address, (caddr_t) tmp_mcast->addr,         \
+            LAN_PHYSADDR_SIZE )) {                              \
+           /* Yes, update ref_cnt and return */                         \
+           tmp_mcast->ref_cnt++;                                \
+           LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                         \
+           return(0);   /* Address in list */                           \
+        }                                                       \
+   }                                                            \
+}
+
+/* Delete or update ref_cnt for an entry in the mcast address list for
+ * a specific LAN interface.
+ */
+#define DEL_MCAST(address)                                      \
+{                                                               \
+    if (lanc_ift_ptr->num_multicast_addr == 0) {                        \
+        LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                            \
+        return(EINVAL);                                                 \
+    }                                                           \
+    error = EINVAL;                                             \
+    for (i=0; i < lanc_ift_ptr->num_multicast_addr; i++) {              \
+        if (!bcmp ((caddr_t) address,                           \
+            (caddr_t) &lanc_ift_ptr->mcast[LAN_PHYSADDR_SIZE * i],      \
+            LAN_PHYSADDR_SIZE )) {  /* Match found */                   \
+                lanc_ift_ptr->mcast_ref_cnt[i]--;                       \
+                error = 0;                                      \
+                break;                                          \
+        }                                                       \
+    }                                                           \
+    if (error) {                                                \
+        LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                            \
+        return(error);  /* address not matched */                       \
+    }                                                           \
+                                                                \
+    /* Make sure this is the last reference to this multicast address */\
+    if (lanc_ift_ptr->mcast_ref_cnt[i] != 0) {                          \
+        LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                            \
+        return(0);                                              \
+    }                                                           \
+                                                                \
+/* Put the last addr in the list in the place of the deleted one.     */\
+    if (i != (lanc_ift_ptr->num_multicast_addr - 1)) {                  \
+        bcopy ((caddr_t) &(lanc_ift_ptr->mcast[LAN_PHYSADDR_SIZE *      \
+               (lanc_ift_ptr->num_multicast_addr-1)]),                  \
+               (caddr_t) &(lanc_ift_ptr->mcast[LAN_PHYSADDR_SIZE * i]), \
+               LAN_PHYSADDR_SIZE );                             \
+        /* Make sure to copy ref_cnt for last address to the one were   \
+         * replacing.                                           \
+         */                                                     \
+        lanc_ift_ptr->mcast_ref_cnt[i] =                        \
+        lanc_ift_ptr->mcast_ref_cnt[lanc_ift_ptr->num_multicast_addr - 1];\
+    }                                                           \
+    hw_req_code = LAN_REQ_MC;                                   \
+    lanc_ift_ptr->num_multicast_addr--;                         \
+    /* Request the driver to disable the requested address */           \
+    LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                                \
+    error= (*lanc_ift_ptr->hw_req)(lanc_ift_ptr, LAN_REQ_MC, NULL);     \
+    return(error);                                              \
+}
+
+/* Add multicast address to original list to maintain backwards */
+/* compatability with old drivers. */
+#define ADD_MCAST(address)                                      \
+{                                                               \
+   /* Don't about token ring yet.       */                      \
+   if ((lanc_ift_ptr->num_multicast_addr >= MAX_8025_MULTICAST_ADDRESSES) \
+      && (lanc_ift_ptr->is_ac.ac_type == ACT_8025)) {                   \
+        LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                            \
+        return(EINVAL);                                         \
+   }                                                            \
+   /* If this is Token Ring or the multicast count      */              \
+   /* is less than the maximum for ethernet then add it */              \
+   if ((lanc_ift_ptr->is_ac.ac_type == ACT_8025)  ||                    \
+       (lanc_ift_ptr->num_multicast_addr < MAX_MULTICAST_ADDRESSES)) {  \
+      /* Initialize ref_cnt for the new address */                      \
+      lanc_ift_ptr->mcast_ref_cnt[lanc_ift_ptr->num_multicast_addr] = 1;\
+                                                                \
+      bcopy ((caddr_t) data_ptr->value.s,                               \
+       (caddr_t) &(lanc_ift_ptr->mcast[LAN_PHYSADDR_SIZE*               \
+       lanc_ift_ptr->num_multicast_addr]), LAN_PHYSADDR_SIZE);          \
+                                                                \
+      lanc_ift_ptr->num_multicast_addr++;                       \
+                                                                \
+      LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                      \
+      /* Request the driver to enable the requested address */          \
+      error= (*lanc_ift_ptr->hw_req)(lanc_ift_ptr, LAN_REQ_MC, NULL);   \
+      LAN_LOCK(lanc_ift_ptr->lanc_lock);                        \
+                                                                \
+      if (error) {                                              \
+        /* NOTE:  all of the ethernet drivers support a minimum of */   \
+        /* 16 addresses, so if we error here we must return the    */   \
+        /* error code rather than trying to implicitly enable      */   \
+        /* the all multi mode.                             */   \
+        /* Remove the address from the list and return the error.  */   \
+        DEL_MCAST(address);                                     \
+      }                                                         \
+   }                                                            \
+   LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                                 \
+   return( error );                                             \
+}
+
+#define UPDATE_MCAST(address)                                   \
+{                                                               \
+   for (i=0; i<lanc_ift_ptr->num_multicast_addr; i++) {                 \
+        if (!bcmp((caddr_t) address,                            \
+            (caddr_t) &lanc_ift_ptr->mcast[LAN_PHYSADDR_SIZE * i],      \
+            LAN_PHYSADDR_SIZE )) {                              \
+                /* Yes, update ref_cnt and return */                    \
+                lanc_ift_ptr->mcast_ref_cnt[i]++;                       \
+                LAN_UNLOCK(lanc_ift_ptr->lanc_lock);                    \
+                return(0);      /* Address in list */                   \
+        }                                                       \
+   }                                                            \
+}
+
+/*
+ * The following definitions are used only for the DLPI to Network
+ * Device Driver kernel interface.
+ */
+#define MAX_PROTO_LEN           20
+
+/*
+ * This mask is used by lanc to determine if the request is from
+ * DLPI/STREAMS or IP.
+ */
+#define DLPI_STREAMS_MASK 0x80000000
+
+/* IP MULTICAST Changes */
+/* WARNING: The following flag is used by lanc_log_protocol and should be
+ * moved into lanc.h.
+ */
+#define DLPI_LOG_FLAG 0x200
+
+/*
+ * The following enumeration defines the kinds of packet formats
+ * the LAN driver recognizes. IEEE 802.[23] SAPs, Ethernet Types, and
+ * HP Canonical addressing.
+ *
+ * NOTE:  DLPI does not support canonical addressing and therefore this
+ * type will not be recogonized.
+ */
+
+enum packet_kinds {LAN_SAP, LAN_TYPE, LAN_CANON, LAN_SNAP, LAN_SNAP_EXT};
+ 
+
+/*
+ * The following primitives are used only in the Driver to DLPI interface
+ * and are not visible to user applications.
+ * (See the dlpi_ext.h file for available command definitions)
+ */
+#define DL_HP_BIND              _IOW('E',1, struct fis)
+#define DL_HP_UNBIND            _IOW('E',2, struct fis)
+#define DL_HP_LOOKUP_PROTO      _IOW('E',3, struct fis)
+#define DL_HP_PROMISCON         _IOW('E',4, struct fis)
+#define DL_HP_PROMISCOFF        _IOW('E',5, struct fis)
+#define DL_HP_DISABMULTI        _IOW('E',6, struct fis)
+#define DL_HP_ENABMULTI         _IOW('E',7, struct fis)
+#define DL_HP_SET_PHYS_ADDR     _IOW('E',8, struct fis)
+#define DL_HP_GET_PHYS_ADDR     _IOW('E',9, struct fis)
+#define DL_HP_GET_STATISTICS    _IOW('E',10, struct fis)
+#define DL_HP_RESET_STATS       _IOW('E',11, struct fis)
+#define DL_HP_HW_RESET          _IOW('E',12, struct fis)
+#define DL_HP_GET_MCAST_LIST    _IOW('E',13, struct fis)
+
+/*
+ * DL_HP_BIND, DL_HP_UNBIND, and DL_HP_LOOKUP_PROTO
+ */
+typedef struct {
+        u_long  dl_proto_kind;          /* Kind will determine size of sap */
+        u_char  *dl_sap;                /* sap info. */
+        u_long  (*dl_proto_func)();     /* Interrupt routine */
+        u_long  dl_proto_info;          /* Read queue pointer */
+} dl_hp_proto_t;
+
+
+/*
+ * DL_HP_PROMISCON, DL_HP_PROMISCOFF
+ */
+typedef struct {
+        u_long  dl_level;               /* physical,SAP level or ALL multicast*/
+        u_long (*dl_proto_func)();      /* Interrupt Routine. */
+        u_long  dl_proto_info;          /* Read queue pointer */
+} dl_hp_promiscon_t;
+
+/*
+ * DL_HP_ENABMULTI_ADDR, DL_HP_DISABMULTI_ADDR, DL_HP_SET_PHYS_ADDR,
+ * DL_HP_GET_PHYS_ADDR, DL_HP_GET_STATISTICS, and DL_HP_GET_MCAST_LIST.
+ */
+typedef struct {
+        u_long  dl_data_len;
+        u_char  *dl_data;
+} dl_hp_data_t;
+
+
+#define DL_HP_BIND_SIZE                 sizeof (dl_hp_proto_t)
+#define DL_HP_UNBIND_SIZE               sizeof (dl_hp_proto_t)
+#define DL_HP_LOOKUP_PROTO_SIZE         sizeof (dl_hp_proto_t)
+#define DL_HP_CLEAR_FUNC_ADDR_SIZE      sizeof (dl_hp_clear_func_addr_t)
+#define DL_HP_SET_FUNC_ADDR_SIZE        sizeof (dl_hp_set_func_addr_t)
+#define DL_HP_PROMISCON_SIZE            sizeof (dl_hp_promiscon_t)
+#define DL_HP_PROMISCOFF_SIZE           sizeof (dl_hp_promiscon_t)
+#define DL_HP_DATA_SIZE                 sizeof (dl_hp_data_t)
+
+#define DL_MIB_SIZE                     sizeof(Ext_mib_t)
+
+/* The following structure definitions are obsolete and should not
+ * be used in any new applications in 10.0.
+ */
+/*
+ * DL_HP_CLEAR_FUNC_ADDR
+ */
+typedef struct {
+        u_long  dl_addr;                /* functional address */
+        u_long (*dl_proto_func)();      /* Interrupt Routine. */
+        u_long  dl_proto_info;          /* Read queue pointer */
+} dl_hp_clear_func_addr_t;
+
+/*
+ * DL_HP_SET_FUNC_ADDR
+ */
+typedef struct {
+        u_long  dl_addr;                /* functional address */
+        u_long (*dl_proto_func)();      /* Interrupt Routine. */
+        u_long  dl_proto_info;          /* Read queue pointer */
+} dl_hp_set_func_addr_t;
+
+
+#define BYTE_INVERT(byte) bit_reverse[byte]
+
+static unsigned char bit_reverse[] = {
+        0x00, 0x80, 0x40, 0xc0, 0x20, 0xa0, 0x60, 0xe0,
+        0x10, 0x90, 0x50, 0xd0, 0x30, 0xb0, 0x70, 0xf0,
+        0x08, 0x88, 0x48, 0xc8, 0x28, 0xa8, 0x68, 0xe8,
+        0x18, 0x98, 0x58, 0xd8, 0x38, 0xb8, 0x78, 0xf8,
+        0x04, 0x84, 0x44, 0xc4, 0x24, 0xa4, 0x64, 0xe4,
+        0x14, 0x94, 0x54, 0xd4, 0x34, 0xb4, 0x74, 0xf4,
+        0x0c, 0x8c, 0x4c, 0xcc, 0x2c, 0xac, 0x6c, 0xec,
+        0x1c, 0x9c, 0x5c, 0xdc, 0x3c, 0xbc, 0x7c, 0xfc,
+        0x02, 0x82, 0x42, 0xc2, 0x22, 0xa2, 0x62, 0xe2,
+        0x12, 0x92, 0x52, 0xd2, 0x32, 0xb2, 0x72, 0xf2,
+        0x0a, 0x8a, 0x4a, 0xca, 0x2a, 0xaa, 0x6a, 0xea,
+        0x1a, 0x9a, 0x5a, 0xda, 0x3a, 0xba, 0x7a, 0xfa,
+        0x06, 0x86, 0x46, 0xc6, 0x26, 0xa6, 0x66, 0xe6,
+        0x16, 0x96, 0x56, 0xd6, 0x36, 0xb6, 0x76, 0xf6,
+        0x0e, 0x8e, 0x4e, 0xce, 0x2e, 0xae, 0x6e, 0xee,
+        0x1e, 0x9e, 0x5e, 0xde, 0x3e, 0xbe, 0x7e, 0xfe,
+        0x01, 0x81, 0x41, 0xc1, 0x21, 0xa1, 0x61, 0xe1,
+        0x11, 0x91, 0x51, 0xd1, 0x31, 0xb1, 0x71, 0xf1,
+        0x09, 0x89, 0x49, 0xc9, 0x29, 0xa9, 0x69, 0xe9,
+        0x19, 0x99, 0x59, 0xd9, 0x39, 0xb9, 0x79, 0xf9,
+        0x05, 0x85, 0x45, 0xc5, 0x25, 0xa5, 0x65, 0xe5,
+        0x15, 0x95, 0x55, 0xd5, 0x35, 0xb5, 0x75, 0xf5,
+        0x0d, 0x8d, 0x4d, 0xcd, 0x2d, 0xad, 0x6d, 0xed,
+        0x1d, 0x9d, 0x5d, 0xdd, 0x3d, 0xbd, 0x7d, 0xfd,
+        0x03, 0x83, 0x43, 0xc3, 0x23, 0xa3, 0x63, 0xe3,
+        0x13, 0x93, 0x53, 0xd3, 0x33, 0xb3, 0x73, 0xf3,
+        0x0b, 0x8b, 0x4b, 0xcb, 0x2b, 0xab, 0x6b, 0xeb,
+        0x1b, 0x9b, 0x5b, 0xdb, 0x3b, 0xbb, 0x7b, 0xfb,
+        0x07, 0x87, 0x47, 0xc7, 0x27, 0xa7, 0x67, 0xe7,
+        0x17, 0x97, 0x57, 0xd7, 0x37, 0xb7, 0x77, 0xf7,
+        0x0f, 0x8f, 0x4f, 0xcf, 0x2f, 0xaf, 0x6f, 0xef,
+        0x1f, 0x9f, 0x5f, 0xdf, 0x3f, 0xbf, 0x7f, 0xff};
+
+#define DLPI_CANONICAL_TO_WIRE(addr) {  \
+        int     index;                  \
+        for ( index = 0 ; index < LAN_PHYSADDR_SIZE ; index++ ) \
+                    addr[index] = BYTE_INVERT(addr[index]);     \
+}
+#endif /* _SIO_DLPIKRN_INCLUDED */
+```
