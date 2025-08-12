@@ -1,4 +1,4 @@
-#	QEMU - Implementing LASI's 82596 and NCR710 Controller		#
+#	    QEMU - Implementing LASI's 82596 and NCR710 Controller		    #
 [ ]: Not yet implemented 				 [x]: Implemented
 -------------------------------------------------------------------------
 
