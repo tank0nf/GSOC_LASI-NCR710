@@ -1,0 +1,31 @@
+#	QEMU - Implementing LASI's 82596 and NCR710 Controllers		#
+[ ]: Not yet implemented 				 [x]: Implemented
+-------------------------------------------------------------------------
+
+82596 NIC
+---------
+[x] Monitor Mode
+[x] Timer
+[x] Bus Throttle
+[x] Promiscious Mode
+[x] Get 82596 Working on HPUX
+[x] Self test
+[x] Accurate CU and RU transition State
+[x] Reset Values
+[x] Linear Segmented and 82596
+[x] Support for Little endian mode
+[x] VMstate descriptors
+[ ] Complete RX and TX function
+[ ] Dump and Diagnostics
+[ ] Statistical counters
+
+NCR710 SCSI
+-----------
+[x] Fix cross compatibality issues from WinUAE implementation
+[x] Design each machine properly
+[x] Modify the WinUAE implementation to atleast look like our NCR710
+[ ] Test with debian 12
+[ ] Implement and testing with OS
+[ ] Debug the Micromachines
+[ ] Get working on HPUX 10.20
+[ ] Fix the issue with the SCSI 
