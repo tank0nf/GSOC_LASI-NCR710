@@ -1,0 +1,127 @@
+#		QEMU - Implementing LASI's 82596 and NCR710 Controller		   	    #
+
+[ ] Not implemented	 |	 [-] Partially implemented 	|	 [x] Fully functional
+---------------------------------------------------------------------------------------------
+
+82596 NIC
+---------
+[x] Monitor Mode
+[x] Timer
+[x] Bus Throttle
+[x] Promiscious Mode
+[x] Get 82596 Working on HPUX
+[x] Self test
+[x] Accurate CU and RU transition State
+[x] Reset Values
+[x] Linear Segmented and 82596
+[x] Support for Little endian mode
+[x] VMstate descriptors
+[x] Polling mechanism
+
+What is still left:
+[-] RX and TX function (Note: RX and TX function is working for Linux, but not for HPUX 10.20)
+[-] Statistical counters (Paritially implemented)
+
+==============================================================================================
+
+NCR710 SCSI Controller
+----------------------
+[x] Design from ground up
+[x] Compatibiality testing as PCI Device
+[x] Implementation with Seabios
+[x] Implementing initial r/w functionality and device identification
+
+
+So amount of work left if everything goes according to plan,
+without any hiccups or without any further delays.
+
+Week 1 (Aug 3rd week)
+------
++ Implementation and testing with HPUX 9.0
++ Statistical Counters
++ Fully functional RX functionality for HPUX 10.20
+
+Week 2 (Aug 4th Week)
+------
++ Fully functional TX functionality for HPUX 10.20
+
+Week 3 (Sept 1st Week)
+------
++ Additional Seabios Implementation
++ Phase Transition and including the reset, aribiteration.
+
+Week 4 (Sept 2nd Week)
+------
++ Getting working on HPUX 10.20
+
+Week 5 (Sept 3rd Week)
+------
++ Properly Implementing the registers and interrupt, memory access commands
++ Implementing and testing the fifo structure
+
+Week 6 (Sept 4th Week)
+------
++ Implementing the fifo layer
+
+Week 7 (Oct 1st Week)
+------
++ Implementing the scripts engine
++ VMState Descriptor
+
+Week 8 (Oct 2nd Week)
+------
++ Through testing with users and others missing features.
+
+Additional Weeks
+----------------
+I could start working on a few documentation, along with that help in improving other PA-RISC related code.
+
+---END---
+
+
+In total in my design I plan to include the following functions:
+ncr710_update_irq()
+ncr710_arbitrate_bus()
+ncr710_internal_scsi_bus_reset()
+ncr710_device_reset()
+ncr710_scripts_execute()
+ncr710_dma_transfer()
+
+FIFO Layer
+ncr710_dma_fifo_init()
+ncr710_dma_fifo_empty()
+ncr710_dma_fifo_full()
+ncr710_dma_fifo_push()
+ncr710_dma_fifo_pop()
+ncr710_dma_fifo_flush()
+
+ncr710_scsi_fifo_init()
+ncr710_scsi_fifo_empty()
+ncr710_scsi_fifo_full()
+ncr710_scsi_fifo_push()
+ncr710_scsi_fifo_pop()
+ncr710_scsi_fifo_flush()
+
+Scripts Engine
+ncr710_fetch_instructions()
+ncr710_execute_block_move()
+ncr710_execute_io_instructions()
+ncr710_execute_transfer_control()
+ncr710_execute_rw()
+
+Memory Access
+ncr710_read_32()
+ncr710_write_32()
+ncr710_calculate_parity()
+
+Phase and bus
+ncr710_set_scsi_phase()
+ncr710_get_scsi_phase()
+ncr710_bus_reset()
+ncr710_select_target()
+
+Note:
+Most if not all design are ready we just need to debug some functionality.
+Prior to the coding period I had a initial design for our NCR710 ready.
+But as I medeled with the NCR710 more and did more research into the datasheet we came to realise that the intial design was very basic then I moved onto design V2.0 which included more functionality.
+And then finally we got to the V3.0 which is the current one.
